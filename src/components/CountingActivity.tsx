@@ -67,6 +67,17 @@ const CountingActivity: React.FC<CountingActivityProps> = ({
     oscillator.stop(now + 0.5);
   };
 
+  // Function to speak the current number
+  const speakNumber = (number: number) => {
+    if (!soundEnabled) return;
+    
+    // Use browser's built-in speech synthesis
+    const utterance = new SpeechSynthesisUtterance(number.toString());
+    utterance.rate = 0.8; // Slightly slower for better clarity
+    utterance.pitch = 1.2; // Slightly higher pitch for child-friendly sound
+    window.speechSynthesis.speak(utterance);
+  };
+
   const handleTap = () => {
     if (currentCount < targetNumber) {
       // Play tap sound
@@ -77,9 +88,7 @@ const CountingActivity: React.FC<CountingActivityProps> = ({
       setCurrentCount(newCount);
       
       // Speak the number
-      if (soundEnabled) {
-        speakNumber(newCount);
-      }
+      speakNumber(newCount);
     }
   };
 
@@ -90,17 +99,6 @@ const CountingActivity: React.FC<CountingActivityProps> = ({
 
   const toggleSound = () => {
     setSoundEnabled(!soundEnabled);
-  };
-
-  // Function to speak the current number
-  const speakNumber = (number: number) => {
-    if (!soundEnabled) return;
-    
-    // Use browser's built-in speech synthesis
-    const utterance = new SpeechSynthesisUtterance(number.toString());
-    utterance.rate = 0.8; // Slightly slower for better clarity
-    utterance.pitch = 1.2; // Slightly higher pitch for child-friendly sound
-    window.speechSynthesis.speak(utterance);
   };
 
   useEffect(() => {
