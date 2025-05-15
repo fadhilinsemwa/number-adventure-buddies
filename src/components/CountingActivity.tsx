@@ -27,8 +27,22 @@ const CountingActivity: React.FC<CountingActivityProps> = ({
       audio.volume = 0.3;
       audio.play().catch(e => console.log('Audio play failed:', e));
       
-      setCurrentCount(prev => prev + 1);
+      // Increment the count
+      const newCount = currentCount + 1;
+      setCurrentCount(newCount);
+      
+      // Speak the number
+      speakNumber(newCount);
     }
+  };
+
+  // Function to speak the current number
+  const speakNumber = (number: number) => {
+    // Use browser's built-in speech synthesis
+    const utterance = new SpeechSynthesisUtterance(number.toString());
+    utterance.rate = 0.8; // Slightly slower for better clarity
+    utterance.pitch = 1.2; // Slightly higher pitch for child-friendly sound
+    window.speechSynthesis.speak(utterance);
   };
 
   useEffect(() => {
@@ -40,6 +54,11 @@ const CountingActivity: React.FC<CountingActivityProps> = ({
       const audio = new Audio('/sounds/celebration.mp3');
       audio.volume = 0.3;
       audio.play().catch(e => console.log('Audio play failed:', e));
+      
+      // Speak congratulatory message
+      const congratsUtterance = new SpeechSynthesisUtterance(`Great! You counted to ${targetNumber}!`);
+      congratsUtterance.rate = 0.8;
+      window.speechSynthesis.speak(congratsUtterance);
       
       setAudioPlayed(true);
     }
@@ -66,7 +85,7 @@ const CountingActivity: React.FC<CountingActivityProps> = ({
         onClick={handleTap}
       >
         <Character
-          type={targetNumber <= 3 ? 'monkey' : targetNumber <= 6 ? 'rabbit' : 'owl'}
+          type={targetNumber <= 10 ? 'monkey' : targetNumber <= 50 ? 'rabbit' : 'owl'}
           emotion={isActive ? 'excited' : 'neutral'}
           animate={isActive}
           className="text-4xl md:text-5xl"
@@ -81,7 +100,7 @@ const CountingActivity: React.FC<CountingActivityProps> = ({
       
       <div className="mb-4 text-center">
         <h2 className="text-2xl md:text-3xl font-bold mb-1">
-          Count the {targetNumber <= 3 ? 'monkeys' : targetNumber <= 6 ? 'rabbits' : 'owls'}!
+          Count the {targetNumber <= 10 ? 'monkeys' : targetNumber <= 50 ? 'rabbits' : 'owls'}!
         </h2>
         <p className="text-lg md:text-xl">Tap each one to count them.</p>
       </div>
