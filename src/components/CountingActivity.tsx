@@ -5,7 +5,7 @@ import NumberDisplay from './NumberDisplay';
 import Character from './Character';
 import GameButton from './GameButton';
 import Confetti from './Confetti';
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Volume2, VolumeX } from "lucide-react";
 
 interface CountingActivityProps {
   targetNumber: number;
@@ -19,25 +19,83 @@ const CountingActivity: React.FC<CountingActivityProps> = ({
   const [currentCount, setCurrentCount] = useState<number>(0);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
   const [audioPlayed, setAudioPlayed] = useState<boolean>(false);
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
+
+  const playSound = (sound: string) => {
+    if (!soundEnabled) return;
+    
+    // Create the audio context on user interaction
+    const audioContext = new AudioContext();
+    
+    // Create an oscillator for a simple beep sound
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    // Configure the oscillator
+    switch (sound) {
+      case 'tap':
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 440 + (currentCount * 20); // Higher pitch as count increases
+        gainNode.gain.value = 0.1;
+        break;
+      case 'complete':
+        oscillator.type = 'triangle';
+        oscillator.frequency.value = 600;
+        gainNode.gain.value = 0.2;
+        break;
+      case 'button':
+        oscillator.type = 'sine';
+        oscillator.frequency.value = 330;
+        gainNode.gain.value = 0.1;
+        break;
+      default:
+        oscillator.frequency.value = 440;
+        gainNode.gain.value = 0.1;
+    }
+    
+    // Connect nodes
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // Schedule the sound
+    const now = audioContext.currentTime;
+    gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    
+    // Play and stop
+    oscillator.start();
+    oscillator.stop(now + 0.5);
+  };
 
   const handleTap = () => {
     if (currentCount < targetNumber) {
       // Play tap sound
-      const audio = new Audio(`/sounds/pop${Math.floor(Math.random() * 3) + 1}.mp3`);
-      audio.volume = 0.3;
-      audio.play().catch(e => console.log('Audio play failed:', e));
+      playSound('tap');
       
       // Increment the count
       const newCount = currentCount + 1;
       setCurrentCount(newCount);
       
       // Speak the number
-      speakNumber(newCount);
+      if (soundEnabled) {
+        speakNumber(newCount);
+      }
     }
+  };
+
+  const handleButtonClick = () => {
+    playSound('button');
+    onComplete();
+  };
+
+  const toggleSound = () => {
+    setSoundEnabled(!soundEnabled);
   };
 
   // Function to speak the current number
   const speakNumber = (number: number) => {
+    if (!soundEnabled) return;
+    
     // Use browser's built-in speech synthesis
     const utterance = new SpeechSynthesisUtterance(number.toString());
     utterance.rate = 0.8; // Slightly slower for better clarity
@@ -51,18 +109,18 @@ const CountingActivity: React.FC<CountingActivityProps> = ({
       setShowCelebration(true);
       
       // Play celebration sound
-      const audio = new Audio('/sounds/celebration.mp3');
-      audio.volume = 0.3;
-      audio.play().catch(e => console.log('Audio play failed:', e));
+      playSound('complete');
       
       // Speak congratulatory message
-      const congratsUtterance = new SpeechSynthesisUtterance(`Great! You counted to ${targetNumber}!`);
-      congratsUtterance.rate = 0.8;
-      window.speechSynthesis.speak(congratsUtterance);
+      if (soundEnabled) {
+        const congratsUtterance = new SpeechSynthesisUtterance(`Great! You counted to ${targetNumber}!`);
+        congratsUtterance.rate = 0.8;
+        window.speechSynthesis.speak(congratsUtterance);
+      }
       
       setAudioPlayed(true);
     }
-  }, [currentCount, targetNumber, audioPlayed]);
+  }, [currentCount, targetNumber, audioPlayed, soundEnabled]);
 
   const activityItems = [];
   for (let i = 0; i < targetNumber; i++) {
@@ -98,6 +156,12 @@ const CountingActivity: React.FC<CountingActivityProps> = ({
     <div className="relative flex flex-col items-center p-4">
       <Confetti active={showCelebration} />
       
+      <div className="absolute top-2 right-4">
+        <button onClick={toggleSound} className="p-2 rounded-full hover:bg-gray-100">
+          {soundEnabled ? <Volume2 size={24} /> : <VolumeX size={24} />}
+        </button>
+      </div>
+      
       <div className="mb-4 text-center">
         <h2 className="text-2xl md:text-3xl font-bold mb-1">
           Count the {targetNumber <= 10 ? 'monkeys' : targetNumber <= 50 ? 'rabbits' : 'owls'}!
@@ -125,7 +189,7 @@ const CountingActivity: React.FC<CountingActivityProps> = ({
             transition={{ delay: 1, duration: 0.5 }}
           >
             <GameButton 
-              onClick={onComplete} 
+              onClick={handleButtonClick} 
               color="green"
               size="lg"
             >

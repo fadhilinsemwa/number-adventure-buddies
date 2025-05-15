@@ -38,6 +38,34 @@ const GameButton: React.FC<GameButtonProps> = ({
     sizeClasses[size]
   );
 
+  const handleClick = () => {
+    // Play button sound using Web Audio API
+    try {
+      const audioContext = new AudioContext();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.type = 'sine';
+      oscillator.frequency.value = 330;
+      gainNode.gain.value = 0.1;
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      const now = audioContext.currentTime;
+      gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+      
+      oscillator.start();
+      oscillator.stop(now + 0.2);
+    } catch (e) {
+      console.log('Audio play failed:', e);
+    }
+    
+    // Call the original onClick handler
+    onClick();
+  };
+
   if (animated) {
     return (
       <motion.div
@@ -45,7 +73,7 @@ const GameButton: React.FC<GameButtonProps> = ({
         whileTap={{ scale: 0.95 }}
       >
         <Button 
-          onClick={onClick}
+          onClick={handleClick}
           className={buttonClasses}
         >
           {children}
@@ -56,7 +84,7 @@ const GameButton: React.FC<GameButtonProps> = ({
 
   return (
     <Button 
-      onClick={onClick}
+      onClick={handleClick}
       className={buttonClasses}
     >
       {children}
