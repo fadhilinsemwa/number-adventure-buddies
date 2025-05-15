@@ -4,9 +4,7 @@ import { motion } from 'framer-motion';
 import GameContainer from '@/components/GameContainer';
 import WelcomeScreen from '@/components/WelcomeScreen';
 import LevelOne from '@/components/LevelOne';
-
-// Import framer-motion
-<lov-add-dependency>framer-motion@latest</lov-add-dependency>
+import GameButton from '@/components/GameButton';
 
 const GameStates = {
   WELCOME: 'welcome',
