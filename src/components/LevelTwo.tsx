@@ -4,17 +4,17 @@ import CountingActivity from './CountingActivity';
 import GameHeader from './GameHeader';
 import LevelComplete from './LevelComplete';
 
-interface LevelOneProps {
+interface LevelTwoProps {
   onComplete: () => void;
   onHomeClick: () => void;
 }
 
-const LevelOne: React.FC<LevelOneProps> = ({ onComplete, onHomeClick }) => {
+const LevelTwo: React.FC<LevelTwoProps> = ({ onComplete, onHomeClick }) => {
   const [currentActivity, setCurrentActivity] = useState<number>(1);
   const [levelCompleted, setLevelCompleted] = useState<boolean>(false);
   
-  // Define the progression of numbers for this level (1-10)
-  const numberProgression = [3, 5, 10];
+  // Define the progression of numbers for level 2 (10-50)
+  const numberProgression = [15, 25, 50];
 
   const handleActivityComplete = useCallback(() => {
     if (currentActivity < numberProgression.length) {
@@ -27,13 +27,13 @@ const LevelOne: React.FC<LevelOneProps> = ({ onComplete, onHomeClick }) => {
   const progress = levelCompleted ? 100 : (currentActivity / numberProgression.length) * 100;
 
   if (levelCompleted) {
-    return <LevelComplete level={1} onNextLevel={onComplete} />;
+    return <LevelComplete level={2} onNextLevel={onComplete} />;
   }
 
   return (
     <div className="flex flex-col h-full">
       <GameHeader 
-        level={1} 
+        level={2} 
         maxLevel={3} 
         progress={progress} 
         onHomeClick={onHomeClick} 
@@ -49,4 +49,4 @@ const LevelOne: React.FC<LevelOneProps> = ({ onComplete, onHomeClick }) => {
   );
 };
 
-export default LevelOne;
+export default LevelTwo;

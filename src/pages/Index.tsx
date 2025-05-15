@@ -4,11 +4,17 @@ import { motion } from 'framer-motion';
 import GameContainer from '@/components/GameContainer';
 import WelcomeScreen from '@/components/WelcomeScreen';
 import LevelOne from '@/components/LevelOne';
+import LevelTwo from '@/components/LevelTwo';
+import LevelThree from '@/components/LevelThree';
 import GameButton from '@/components/GameButton';
+import LevelSelector from '@/components/LevelSelector';
 
 const GameStates = {
   WELCOME: 'welcome',
+  LEVEL_SELECTOR: 'level_selector',
   LEVEL_ONE: 'level_one',
+  LEVEL_TWO: 'level_two',
+  LEVEL_THREE: 'level_three',
   GAME_COMPLETE: 'game_complete',
 };
 
@@ -23,10 +29,22 @@ const Index = () => {
   }, []);
 
   const handleStartGame = () => {
-    setGameState(GameStates.LEVEL_ONE);
+    setGameState(GameStates.LEVEL_SELECTOR);
+  };
+
+  const handleLevelSelect = (level: string) => {
+    setGameState(level);
   };
 
   const handleLevelOneComplete = () => {
+    setGameState(GameStates.LEVEL_SELECTOR);
+  };
+
+  const handleLevelTwoComplete = () => {
+    setGameState(GameStates.LEVEL_SELECTOR);
+  };
+
+  const handleLevelThreeComplete = () => {
     setGameState(GameStates.GAME_COMPLETE);
   };
 
@@ -47,9 +65,31 @@ const Index = () => {
             <WelcomeScreen onStartGame={handleStartGame} />
           )}
           
+          {gameState === GameStates.LEVEL_SELECTOR && (
+            <LevelSelector 
+              onLevelSelect={handleLevelSelect} 
+              onHomeClick={handleHomeClick}
+              gameStates={GameStates}
+            />
+          )}
+          
           {gameState === GameStates.LEVEL_ONE && (
             <LevelOne 
               onComplete={handleLevelOneComplete} 
+              onHomeClick={handleHomeClick}
+            />
+          )}
+
+          {gameState === GameStates.LEVEL_TWO && (
+            <LevelTwo 
+              onComplete={handleLevelTwoComplete} 
+              onHomeClick={handleHomeClick}
+            />
+          )}
+
+          {gameState === GameStates.LEVEL_THREE && (
+            <LevelThree 
+              onComplete={handleLevelThreeComplete} 
               onHomeClick={handleHomeClick}
             />
           )}
@@ -57,7 +97,7 @@ const Index = () => {
           {gameState === GameStates.GAME_COMPLETE && (
             <div className="flex flex-col items-center justify-center p-6 text-center">
               <h2 className="text-3xl font-bold mb-4">Great Job!</h2>
-              <p className="text-xl mb-6">You've completed Level 1!</p>
+              <p className="text-xl mb-6">You've completed all levels and can count to 100!</p>
               <GameButton onClick={handleHomeClick} color="blue">
                 Back to Home
               </GameButton>
